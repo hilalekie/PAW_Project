@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\Konsol;
+use App\Models\Ruangan;
 use App\Models\Pelanggan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class KetersediaanController extends Controller
 {
-    const BUKA = 10;   // jam buka
-    const TUTUP = 22;  // jam tutup
+    const BUKA = 10;
+    const TUTUP = 22;
 
     public function index(Request $request)
     {
@@ -40,11 +40,11 @@ class KetersediaanController extends Controller
                 $bookings = Booking::where('tanggal', $tanggal)
                     ->where('status', '!=', 'batal')
                     ->get()
-                    ->groupBy('konsol_id');
+                    ->groupBy('ruangan_id');
 
-                $hasil = Konsol::orderBy('nama_konsol')->get()->map(function ($k) use ($bookings, $awal, $akhir) {
-                    $k->kosong = !$this->terisi($bookings->get($k->id, collect()), $awal, $akhir);
-                    return $k;
+                $hasil = Ruangan::orderBy('nama_ruangan')->get()->map(function ($r) use ($bookings, $awal, $akhir) {
+                    $r->kosong = !$this->terisi($bookings->get($r->id, collect()), $awal, $akhir);
+                    return $r;
                 });
             }
         }
@@ -57,7 +57,7 @@ class KetersediaanController extends Controller
         $data = $request->validate([
             'nama' => 'required|string|max:100',
             'no_hp' => ['required', 'regex:/^[0-9+]{8,15}$/'],
-            'konsol_id' => 'required|exists:konsols,id',
+            'ruangan_id' => 'required|exists:ruangans,id',
             'tanggal' => 'required|date|after_or_equal:today',
             'jam_mulai' => 'required|date_format:H:i',
             'durasi' => 'required|integer|min:1|max:8',
@@ -75,7 +75,7 @@ class KetersediaanController extends Controller
             return back()->withInput()->withErrors(['jam_mulai' => 'Jam yang dipilih sudah lewat']);
         }
 
-        $bookings = Booking::where('konsol_id', $data['konsol_id'])
+        $bookings = Booking::where('ruangan_id', $data['ruangan_id'])
             ->where('tanggal', $data['tanggal'])
             ->where('status', '!=', 'batal')
             ->get();
@@ -84,7 +84,8 @@ class KetersediaanController extends Controller
             return back()->withInput()->withErrors(['jam_mulai' => 'Jam yang dipilih baru saja terisi, silakan pilih jam lain']);
         }
 
-        $konsol = Konsol::find($data['konsol_id']);
+        $ruangan = Ruangan::find($data['ruangan_id']);
+
         $pelanggan = Pelanggan::firstOrCreate(
             ['no_hp' => $data['no_hp']],
             ['nama' => $data['nama']]
@@ -92,11 +93,11 @@ class KetersediaanController extends Controller
 
         Booking::create([
             'pelanggan_id' => $pelanggan->id,
-            'konsol_id' => $konsol->id,
+            'ruangan_id' => $ruangan->id,
             'tanggal' => $data['tanggal'],
             'jam_mulai' => $data['jam_mulai'],
             'durasi' => $data['durasi'],
-            'total_harga' => $konsol->harga_per_jam * $data['durasi'],
+            'total_harga' => $ruangan->harga_per_jam * $data['durasi'],
             'status' => 'dipesan',
         ]);
 
@@ -104,7 +105,6 @@ class KetersediaanController extends Controller
             ->with('success', 'Booking berhasil! Admin akan menghubungi nomor kamu untuk konfirmasi.');
     }
 
-    // true kalau rentang menit [awal, akhir) bentrok dengan salah satu booking
     private function terisi($bookings, $awal, $akhir)
     {
         foreach ($bookings as $b) {

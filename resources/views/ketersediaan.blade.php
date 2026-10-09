@@ -17,7 +17,9 @@
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            @foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach
+            @foreach ($errors->all() as $e)
+                <div>{{ $e }}</div>
+            @endforeach
         </div>
     @endif
 
@@ -29,6 +31,7 @@
                     <label class="form-label small">Tanggal</label>
                     <input type="date" name="tanggal" value="{{ $tanggal }}" min="{{ now()->toDateString() }}" class="form-control" required>
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label small">Jam mulai</label>
                     <select name="jam" class="form-select" required>
@@ -40,14 +43,18 @@
                         @endforeach
                     </select>
                 </div>
+
                 <div class="col-md-3">
                     <label class="form-label small">Durasi</label>
                     <select name="durasi" class="form-select" required>
                         @foreach (range(1, 8) as $d)
-                            <option value="{{ $d }}" {{ (int) ($durasi ?? 1) === $d ? 'selected' : '' }}>{{ $d }} jam</option>
+                            <option value="{{ $d }}" {{ (int) ($durasi ?? 1) === $d ? 'selected' : '' }}>
+                                {{ $d }} jam
+                            </option>
                         @endforeach
                     </select>
                 </div>
+
                 <div class="col-md-2 d-flex align-items-end">
                     <button class="btn btn-primary w-100">Cari</button>
                 </div>
@@ -70,27 +77,48 @@
         </h5>
 
         @if ($hasil->where('kosong', true)->isEmpty())
-            <div class="alert alert-danger">Maaf, semua ruangan sudah terisi di jam itu. Coba jam atau tanggal lain.</div>
+            <div class="alert alert-danger">
+                Maaf, semua ruangan sudah terisi di jam itu. Coba jam atau tanggal lain.
+            </div>
         @else
             <form method="POST" action="{{ route('ketersediaan.store') }}">
                 @csrf
+
                 <input type="hidden" name="tanggal" value="{{ $tanggal }}">
                 <input type="hidden" name="jam_mulai" value="{{ $mulai }}:00">
                 <input type="hidden" name="durasi" value="{{ $durasi }}">
 
                 <div class="row g-3 mb-3">
-                    @foreach ($hasil as $k)
+                    @foreach ($hasil as $r)
                         <div class="col-md-6">
-                            <input type="radio" class="btn-check" name="konsol_id" id="k{{ $k->id }}"
-                                   value="{{ $k->id }}" autocomplete="off" required {{ $k->kosong ? '' : 'disabled' }}>
-                            <label for="k{{ $k->id }}"
-                                   class="btn {{ $k->kosong ? 'btn-outline-success' : 'btn-outline-secondary' }} w-100 text-start p-3">
-                                <div class="fw-bold">{{ $k->nama_konsol }} - {{ $k->ruangan }}</div>
-                                <div class="small">Rp {{ number_format($k->harga_per_jam, 0, ',', '.') }}/jam</div>
-                                @if ($k->kosong)
-                                    <div class="small">Total: Rp {{ number_format($k->harga_per_jam * $durasi, 0, ',', '.') }}</div>
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="ruangan_id"
+                                   id="r{{ $r->id }}"
+                                   value="{{ $r->id }}"
+                                   autocomplete="off"
+                                   required
+                                   {{ $r->kosong ? '' : 'disabled' }}>
+
+                            <label for="r{{ $r->id }}"
+                                   class="btn {{ $r->kosong ? 'btn-outline-success' : 'btn-outline-secondary' }} w-100 text-start p-3">
+
+                                <div class="fw-bold">
+                                    {{ $r->nama_ruangan }}
+                                </div>
+
+                                <div class="small">
+                                    Rp {{ number_format($r->harga_per_jam, 0, ',', '.') }}/jam
+                                </div>
+
+                                @if ($r->kosong)
+                                    <div class="small">
+                                        Total: Rp {{ number_format($r->harga_per_jam * $durasi, 0, ',', '.') }}
+                                    </div>
                                 @else
-                                    <div class="small">Sudah terisi</div>
+                                    <div class="small">
+                                        Sudah terisi
+                                    </div>
                                 @endif
                             </label>
                         </div>
@@ -101,11 +129,23 @@
                     <div class="card-body">
                         <div class="row g-2">
                             <div class="col-md-5">
-                                <input type="text" name="nama" class="form-control" placeholder="Nama kamu" value="{{ old('nama') }}" required>
+                                <input type="text"
+                                       name="nama"
+                                       class="form-control"
+                                       placeholder="Nama kamu"
+                                       value="{{ old('nama') }}"
+                                       required>
                             </div>
+
                             <div class="col-md-4">
-                                <input type="text" name="no_hp" class="form-control" placeholder="No HP / WhatsApp" value="{{ old('no_hp') }}" required>
+                                <input type="text"
+                                       name="no_hp"
+                                       class="form-control"
+                                       placeholder="No HP / WhatsApp"
+                                       value="{{ old('no_hp') }}"
+                                       required>
                             </div>
+
                             <div class="col-md-3">
                                 <button class="btn btn-primary w-100">Booking</button>
                             </div>
@@ -116,7 +156,9 @@
         @endif
     @endif
 
-    <p class="text-center mt-4"><a href="{{ route('login') }}">Login Admin</a></p>
+    <p class="text-center mt-4">
+        <a href="{{ route('login') }}">Login Admin</a>
+    </p>
 </div>
 </body>
 </html>

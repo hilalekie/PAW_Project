@@ -12,16 +12,16 @@
 </div>
 
 <div class="mb-3">
-    <label>Konsol / Ruangan</label>
-    <select name="konsol_id" class="form-select">
-        <option value="">-- Pilih konsol --</option>
-        @foreach ($konsols as $k)
-            <option value="{{ $k->id }}" {{ old('konsol_id', $booking->konsol_id ?? '') == $k->id ? 'selected' : '' }}>
-                {{ $k->nama_konsol }} - {{ $k->ruangan }} (Rp {{ number_format($k->harga_per_jam, 0, ',', '.') }}/jam)
+    <label>Ruangan</label>
+    <select name="ruangan_id" class="form-select">
+        <option value="">-- Pilih ruangan --</option>
+        @foreach ($ruangans as $r)
+            <option value="{{ $r->id }}" {{ old('ruangan_id', $booking->ruangan_id ?? '') == $r->id ? 'selected' : '' }}>
+                {{ $r->nama_ruangan }} (Rp {{ number_format($r->harga_per_jam, 0, ',', '.') }}/jam)
             </option>
         @endforeach
     </select>
-    @error('konsol_id') <small class="text-danger">{{ $message }}</small> @enderror
+    @error('ruangan_id') <small class="text-danger">{{ $message }}</small> @enderror
 </div>
 
 <div class="mb-3">

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\Konsol;
+use App\Models\Ruangan;
 use App\Models\Pelanggan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -12,15 +12,15 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with(['pelanggan', 'konsol'])->latest()->get();
+        $bookings = Booking::with(['pelanggan', 'ruangan'])->latest()->get();
         return view('booking.index', compact('bookings'));
     }
 
     public function create()
     {
         $pelanggans = Pelanggan::orderBy('nama')->get();
-        $konsols = Konsol::orderBy('nama_konsol')->get();
-        return view('booking.create', compact('pelanggans', 'konsols'));
+        $ruangans = Ruangan::orderBy('nama_ruangan')->get();
+        return view('booking.create', compact('pelanggans', 'ruangans'));
     }
 
     public function store(Request $request)
@@ -28,7 +28,7 @@ class BookingController extends Controller
         $data = $this->validasi($request);
 
         if ($this->bentrok($data)) {
-            return back()->withInput()->withErrors(['jam_mulai' => 'Konsol sudah dibooking pada jam tersebut']);
+            return back()->withInput()->withErrors(['jam_mulai' => 'Ruangan sudah dibooking pada jam tersebut']);
         }
 
         $data['total_harga'] = $this->hitungTotal($data);
@@ -40,8 +40,8 @@ class BookingController extends Controller
     public function edit(Booking $booking)
     {
         $pelanggans = Pelanggan::orderBy('nama')->get();
-        $konsols = Konsol::orderBy('nama_konsol')->get();
-        return view('booking.edit', compact('booking', 'pelanggans', 'konsols'));
+        $ruangans = Ruangan::orderBy('nama_ruangan')->get();
+        return view('booking.edit', compact('booking', 'pelanggans', 'ruangans'));
     }
 
     public function update(Request $request, Booking $booking)
@@ -49,7 +49,7 @@ class BookingController extends Controller
         $data = $this->validasi($request);
 
         if ($this->bentrok($data, $booking->id)) {
-            return back()->withInput()->withErrors(['jam_mulai' => 'Konsol sudah dibooking pada jam tersebut']);
+            return back()->withInput()->withErrors(['jam_mulai' => 'Ruangan sudah dibooking pada jam tersebut']);
         }
 
         $data['total_harga'] = $this->hitungTotal($data);
@@ -68,7 +68,7 @@ class BookingController extends Controller
     {
         return $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
-            'konsol_id' => 'required|exists:konsols,id',
+            'ruangan_id' => 'required|exists:ruangans,id',
             'tanggal' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'durasi' => 'required|integer|min:1|max:12',
@@ -78,11 +78,11 @@ class BookingController extends Controller
 
     private function hitungTotal(array $data)
     {
-        $konsol = Konsol::find($data['konsol_id']);
-        return $konsol->harga_per_jam * $data['durasi'];
+        $ruangan = Ruangan::find($data['ruangan_id']);
+        return $ruangan->harga_per_jam * $data['durasi'];
     }
 
-    // true kalau jadwal bentrok dengan booking lain di konsol dan tanggal yang sama
+    // true kalau jadwal bentrok dengan booking lain di ruangan dan tanggal yang sama
     private function bentrok(array $data, $exceptId = null)
     {
         if ($data['status'] === 'batal') {
@@ -92,7 +92,7 @@ class BookingController extends Controller
         $mulai = Carbon::parse($data['jam_mulai']);
         $selesai = $mulai->copy()->addHours((int) $data['durasi']);
 
-        $lain = Booking::where('konsol_id', $data['konsol_id'])
+        $lain = Booking::where('ruangan_id', $data['ruangan_id'])
             ->where('tanggal', $data['tanggal'])
             ->where('status', '!=', 'batal')
             ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))

@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\KetersediaanController;
@@ -20,5 +20,6 @@ Route::post('/ketersediaan', [KetersediaanController::class, 'store'])->name('ke
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
     Route::resource('users', UserController::class)->except('show');
+    Route::resource('ruangan', RuanganController::class)->except('show');
     Route::resource('booking', BookingController::class)->except('show');
 });

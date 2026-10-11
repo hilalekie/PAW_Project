@@ -17,8 +17,8 @@
 
         <div class="col-md-4">
             <div class="card p-3">
-                <h5>Total Konsol</h5>
-                <h2>{{ $totalKonsol ?? 0 }}</h2>
+                <h5>Total Ruangan</h5>
+                <h2>{{ $totalRuangan ?? 0 }}</h2>
             </div>
         </div>
 

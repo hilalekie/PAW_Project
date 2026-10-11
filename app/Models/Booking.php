@@ -13,8 +13,8 @@ class Booking extends Model
         return $this->belongsTo(Pelanggan::class);
     }
 
-    public function konsol()
+    public function ruangan()
     {
-        return $this->belongsTo(Konsol::class);
+        return $this->belongsTo(Ruangan::class);
     }
 }

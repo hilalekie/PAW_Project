@@ -11,8 +11,15 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>No</th><th>Pelanggan</th><th>Konsol</th><th>Tanggal</th>
-            <th>Jam</th><th>Durasi</th><th>Total</th><th>Status</th><th>Aksi</th>
+            <th>No</th>
+            <th>Pelanggan</th>
+            <th>Ruangan</th>
+            <th>Tanggal</th>
+            <th>Jam</th>
+            <th>Durasi</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Aksi</th>
         </tr>
     </thead>
     <tbody>
@@ -20,7 +27,7 @@
         <tr>
             <td>{{ $loop->iteration }}</td>
             <td>{{ $b->pelanggan->nama }}</td>
-            <td>{{ $b->konsol->nama_konsol }} ({{ $b->konsol->ruangan }})</td>
+            <td>{{ $b->ruangan->nama_ruangan }}</td>
             <td>{{ $b->tanggal }}</td>
             <td>{{ substr($b->jam_mulai, 0, 5) }}</td>
             <td>{{ $b->durasi }} jam</td>
@@ -38,13 +45,16 @@
                 <a href="{{ route('booking.edit', $b) }}" class="btn btn-warning btn-sm">Edit</a>
                 <form action="{{ route('booking.destroy', $b) }}" method="POST" class="d-inline"
                       onsubmit="return confirm('Yakin hapus?')">
-                    @csrf @method('DELETE')
+                    @csrf
+                    @method('DELETE')
                     <button class="btn btn-danger btn-sm">Hapus</button>
                 </form>
             </td>
         </tr>
         @empty
-        <tr><td colspan="9" class="text-center">Belum ada data</td></tr>
+        <tr>
+            <td colspan="9" class="text-center">Belum ada data</td>
+        </tr>
         @endforelse
     </tbody>
 </table>

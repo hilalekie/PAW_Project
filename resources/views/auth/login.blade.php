@@ -24,8 +24,6 @@
                 </div>
                 <button class="btn btn-primary w-100">Login</button>
             </form>
-                            <button class="btn btn-primary w-100">Login</button>
-            </form>
             <p class="text-center mt-3 mb-0"><a href="{{ route('ketersediaan') }}">Cek Ketersediaan</a></p>
         </div>
     </div>

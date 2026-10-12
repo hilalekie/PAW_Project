@@ -42,8 +42,12 @@ class KetersediaanController extends Controller
                     ->get()
                     ->groupBy('ruangan_id');
 
-                $hasil = Ruangan::orderBy('nama_ruangan')->get()->map(function ($r) use ($bookings, $awal, $akhir) {
-                    $r->kosong = !$this->terisi($bookings->get($r->id, collect()), $awal, $akhir);
+               $hasil = Ruangan::orderBy('nama_ruangan')->get()->map(function ($r) use ($bookings, $awal, $akhir) {    
+                    if ($r->status === 'dipakai') {
+                        $r->kosong = false;
+                    } else {
+                        $r->kosong = !$this->terisi($bookings->get($r->id, collect()), $awal, $akhir);
+                    }
                     return $r;
                 });
             }
@@ -85,6 +89,10 @@ class KetersediaanController extends Controller
         }
 
         $ruangan = Ruangan::find($data['ruangan_id']);
+
+        if ($ruangan->status === 'dipakai') {
+            return back()->withInput()->withErrors(['ruangan_id' => 'Ruangan ini sedang tidak dapat disewa (Status: Dipakai).']);
+        }
 
         $pelanggan = Pelanggan::firstOrCreate(
             ['no_hp' => $data['no_hp']],
